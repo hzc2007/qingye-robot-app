@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1220" />
+  <title>青野玄冬号 农业一体化多功能机器人控制中心</title>
+  <style>
+    :root{
+      --bg:#07111f; --panel:#0f1b2d; --panel2:#12243a; --line:#243753;
+      --text:#e8f1ff; --muted:#8da3c3; --accent:#4ade80; --accent2:#38bdf8;
+      --warn:#f59e0b; --danger:#ef4444; --ok:#22c55e; --white:#ffffff;
+      --shadow: 0 18px 50px rgba(0,0,0,.35);
+      font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",Arial,sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:radial-gradient(circle at top,#18304b 0,#07111f 42%,#050914 100%);color:var(--text);min-height:100vh;}
+    .app{max-width:430px;margin:0 auto;min-height:100vh;background:linear-gradient(180deg,rgba(15,27,45,.92),rgba(7,17,31,.98));box-shadow:var(--shadow);position:relative;overflow:hidden;border-left:1px solid rgba(255,255,255,.06);border-right:1px solid rgba(255,255,255,.06)}
+    header{padding:18px 18px 12px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:3;background:linear-gradient(180deg,rgba(7,17,31,.96),rgba(7,17,31,.78));backdrop-filter:blur(10px)}
+    .brand{display:flex;gap:10px;align-items:center}.logo{width:38px;height:38px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;color:#06111d;font-weight:900}.brand h1{font-size:18px;margin:0}.brand p{margin:2px 0 0;color:var(--muted);font-size:12px}.pill{font-size:12px;padding:7px 9px;border-radius:99px;background:rgba(74,222,128,.14);color:#a7f3d0;border:1px solid rgba(74,222,128,.25)}
+    main{padding:4px 14px 92px}.card{background:linear-gradient(180deg,rgba(18,36,58,.96),rgba(11,25,42,.96));border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:14px;margin:10px 0;box-shadow:0 10px 25px rgba(0,0,0,.18)}
+    .row{display:flex;gap:10px;align-items:center}.between{justify-content:space-between}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.small{font-size:12px;color:var(--muted)}.value{font-size:18px;font-weight:800}.title{font-weight:800;font-size:15px;margin:0 0 8px}.sub{color:var(--muted);font-size:12px;line-height:1.45}.btn{border:0;border-radius:14px;padding:12px 12px;color:var(--text);background:#1d314e;font-weight:800;cursor:pointer;transition:.15s;user-select:none}.btn:active{transform:scale(.98)}.btn.primary{background:linear-gradient(135deg,var(--accent),#16a34a);color:#05130b}.btn.blue{background:linear-gradient(135deg,var(--accent2),#2563eb);color:#031323}.btn.warn{background:linear-gradient(135deg,#fbbf24,#f97316);color:#241000}.btn.danger{background:linear-gradient(135deg,#ef4444,#b91c1c);color:white}.btn.ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}
+    input,select{width:100%;background:#07182a;border:1px solid rgba(255,255,255,.1);border-radius:14px;color:var(--text);padding:11px;outline:none}label{font-size:12px;color:var(--muted);display:block;margin:8px 0 5px}
+    .telemetry{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.tbox{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:10px 7px;text-align:center}.tbox b{display:block;font-size:16px}.tbox span{font-size:10px;color:var(--muted)}
+    canvas{width:100%;height:318px;background:#06101c;border:1px solid rgba(255,255,255,.08);border-radius:22px;touch-action:none;display:block}.mapTools{display:flex;gap:7px;overflow-x:auto;padding:8px 0 2px}.tool{white-space:nowrap;font-size:12px;padding:9px 11px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:var(--muted);cursor:pointer}.tool.active{background:rgba(56,189,248,.2);color:#bae6fd;border-color:rgba(56,189,248,.35)}
+    .bottomNav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(430px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:rgba(6,14,26,.94);backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.08);padding:8px 8px env(safe-area-inset-bottom)}.navItem{border:0;background:transparent;color:var(--muted);font-size:11px;padding:7px 0;border-radius:14px}.navItem b{display:block;font-size:18px;margin-bottom:3px}.navItem.active{color:#a7f3d0;background:rgba(74,222,128,.1)}
+    .page{display:none}.page.active{display:block}.statusDot{width:9px;height:9px;border-radius:50%;background:var(--danger);box-shadow:0 0 16px var(--danger)}.statusDot.on{background:var(--ok);box-shadow:0 0 16px var(--ok)}.module{display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);margin:8px 0}.module.active{border-color:rgba(74,222,128,.45);background:rgba(74,222,128,.1)}.kbd{font-family:ui-monospace,Menlo,monospace;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:2px 6px;color:#dbeafe}.joy{height:220px;border-radius:28px;background:radial-gradient(circle at center,rgba(56,189,248,.22),rgba(255,255,255,.05) 38%,rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);position:relative;overflow:hidden}.stick{position:absolute;left:50%;top:50%;width:78px;height:78px;margin-left:-39px;margin-top:-39px;border-radius:50%;background:linear-gradient(135deg,#e8f1ff,#8da3c3);box-shadow:0 16px 30px rgba(0,0,0,.28);display:grid;place-items:center;color:#07111f;font-weight:900}.log{height:130px;overflow:auto;background:#050b14;border-radius:14px;border:1px solid rgba(255,255,255,.08);padding:10px;font-size:11px;color:#a7b6ca;line-height:1.55}.switch{display:flex;background:rgba(255,255,255,.06);border-radius:14px;padding:3px;gap:3px}.switch button{flex:1;border:0;border-radius:11px;padding:8px;color:var(--muted);background:transparent;font-weight:700}.switch button.active{background:rgba(74,222,128,.18);color:#bbf7d0}.badge{font-size:11px;color:#bae6fd;border:1px solid rgba(56,189,248,.25);background:rgba(56,189,248,.12);padding:4px 7px;border-radius:999px}.dangerBar{position:fixed;left:50%;transform:translateX(-50%);bottom:66px;width:min(398px,calc(100% - 28px));z-index:5;display:none}.dangerBar button{width:100%;box-shadow:0 14px 25px rgba(239,68,68,.24)}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand"><div class="logo">青</div><div><h1>青野玄冬号</h1><p>农业一体化多功能机器人控制中心</p></div></div>
+    <div class="pill"><span id="connDot" class="statusDot on"></span> <span id="connText">已连接</span></div>
+  </header>
+
+  <main>
+    <section id="page-home" class="page active">
+      <div class="card">
+        <div class="row between"><div><p class="title">机器人状态</p></div><span class="badge" id="modeBadge">待机</span></div>
+        <div class="telemetry" style="margin-top:12px">
+          <div class="tbox"><b id="bat">86%</b><span>电量</span></div><div class="tbox"><b id="spd">0.0</b><span>m/s</span></div><div class="tbox"><b id="gps">RTK</b><span>定位</span></div><div class="tbox"><b id="area">0㎡</b><span>区域</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <p class="title">一键任务</p>
+        <div class="grid2"><button class="btn primary" onclick="startTask()">开始自动作业</button><button class="btn warn" onclick="pauseTask()">暂停/继续</button></div>
+        <button class="btn danger" style="width:100%;margin-top:10px" onclick="emergencyStop()">急停</button>
+      </div>
+      <div class="card">
+        <p class="title">当前模块</p>
+        <div class="module active" onclick="setModule('mower',this)"><div><b>割草模块</b><p class="sub">刀盘转速、割草高度、覆盖路径</p></div><span>已装载</span></div>
+        <div class="module" onclick="setModule('snow',this)"><div><b>除雪模块</b><p class="sub">推雪方向、抛雪角度、低速牵引</p></div><span>切换</span></div>
+        <div class="module" onclick="setModule('leaf',this)"><div><b>集叶模块</b><p class="sub">吸叶风机、集叶箱容量、边缘清扫</p></div><span>切换</span></div>
+      </div>
+      <div class="card">
+        <p class="title">系统日志</p><div id="log" class="log"></div>
+      </div>
+    </section>
+
+    <section id="page-connect" class="page">
+      <div class="card">
+        <p class="title">连接机器人</p>
+        <label>连接方式</label><select id="connType"><option>WebSocket 局域网</option><option>MQTT 物联网</option><option>BLE 蓝牙调试</option></select>
+        <label>机器人地址</label><input id="robotUrl" value="ws://192.168.4.1:8765" />
+        <div class="grid2" style="margin-top:12px"><button class="btn blue" onclick="connectRobot()">连接</button><button class="btn ghost" onclick="disconnectRobot()">断开</button></div>
+      </div>
+      <div class="card">
+        <p class="title">建议实机通信结构</p>
+        <p class="sub">App → Jetson Nano：地图、任务、视频与自动驾驶指令；Jetson Nano → STM32：速度闭环、急停、刀盘/风机/推雪机构控制。</p>
+        <p class="sub">上线前必须加入 Token 鉴权、TLS 加密、本地急停、遥控接管、地理围栏和低电量返航。</p>
+      </div>
+    </section>
+
+    <section id="page-map" class="page">
+      <div class="card">
+        <div class="row between"><div><p class="title">虚拟地形规划与实时轨迹</p><p class="sub">已内置一张虚拟农场地图：绿色为工作区，红色为禁区，黄色为规划路线，蓝色为机器人实时运动轨迹。</p></div><span class="badge" id="mapStatus">虚拟地图</span></div>
+        <div class="mapTools">
+          <button class="tool active" data-tool="area">工作区</button><button class="tool" data-tool="ngz">禁区</button><button class="tool" data-tool="pathway">通道</button><button class="tool" data-tool="robot">放置机器人</button>
+        </div>
+        <canvas id="mapCanvas" width="800" height="620"></canvas>
+        <div class="mapHint">
+          <div><b id="trailLen">0m</b><span>实时轨迹</span></div><div><b id="taskPct">0%</b><span>任务进度</span></div><div><b id="robotXY">0,0</b><span>机器人坐标</span></div>
+        </div>
+        <div class="grid3" style="margin-top:10px"><button class="btn ghost" onclick="loadVirtualMap()">载入虚拟地图</button><button class="btn blue" onclick="generatePlan()">生成路径</button><button class="btn primary" onclick="sendMap()">下发地图</button></div>
+        <div class="grid3" style="margin-top:8px"><button class="btn ghost" onclick="undoPoint()">撤销点</button><button class="btn ghost" onclick="clearTrail()">清空轨迹</button><button class="btn ghost" onclick="exportMap()">导出JSON</button></div>
+      </div>
+    </section>
+
+    <section id="page-drive" class="page">
+      <div class="card">
+        <div class="row between"><div><p class="title">手动驾驶</p><p class="sub">用于建图、测试、脱困和紧急接管。</p></div><span class="badge" id="manualSpeedBadge">实时速度 0.0m/s</span></div>
+        <div class="joy" id="joy"><div class="stick" id="stick">DRIVE</div></div>
+        <div class="grid2" style="margin-top:10px"><button class="btn ghost" onclick="adjustManualSpeed(0.1)">速度+</button><button class="btn ghost" onclick="adjustManualSpeed(-0.1)">速度-</button></div>
+        <button class="btn danger" style="width:100%;margin-top:10px" onclick="emergencyStop()">急停</button>
+      </div>
+      <div class="card">
+        <p class="title">模块控制</p>
+        <div class="grid2"><button class="btn ghost" onclick="cmd('tool','on')">作业模块启动</button><button class="btn ghost" onclick="cmd('tool','off')">作业模块停止</button></div>
+      </div>
+    </section>
+
+    <section id="page-settings" class="page">
+      <div class="card">
+        <p class="title">参数设置</p>
+        <p class="sub">用于仿真演示和现场答辩时手动修改首页显示数据。修改后会同步到首页状态栏。</p>
+        <label>电量显示（%）</label>
+        <input id="setBattery" type="number" min="0" max="100" step="1" value="86" />
+        <label>速度显示（m/s）</label>
+        <input id="setSpeed" type="number" min="0" max="2" step="0.1" value="0.0" />
+        <label>区域显示（㎡）</label>
+        <input id="setArea" type="number" min="0" step="1" value="0" />
+        <div class="grid2" style="margin-top:12px">
+          <button class="btn primary" onclick="applySettings()">保存参数</button>
+          <button class="btn ghost" onclick="resetAreaFromMap()">按地图计算</button>
+        </div>
+      </div>
+      <div class="card">
+        <p class="title">当前显示值</p>
+        <div class="telemetry" style="margin-top:12px">
+          <div class="tbox"><b id="setPreviewBattery">86%</b><span>电量</span></div>
+          <div class="tbox"><b id="setPreviewSpeed">0.0</b><span>m/s</span></div>
+          <div class="tbox"><b id="setPreviewArea">0㎡</b><span>区域</span></div>
+          <div class="tbox"><b id="setPreviewConn">已连接</b><span>连接</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="dangerBar" id="dangerBar"><button class="btn danger" onclick="clearEmergency()">已急停，点击复位</button></div>
+  <nav class="bottomNav">
+    <button class="navItem active" onclick="showPage('home',this)"><b>⌂</b>首页</button>
+    <button class="navItem" onclick="showPage('connect',this)"><b>⌁</b>连接</button>
+    <button class="navItem" onclick="showPage('map',this)"><b>□</b>地图</button>
+    <button class="navItem" onclick="showPage('drive',this)"><b>✥</b>驾驶</button>
+    <button class="navItem" onclick="showPage('settings',this)"><b>⚙</b>设置</button>
+  </nav>
+</div>
+<script>
+let socket=null, connected=true, activeModule='mower', mode='待机';
+let simTimer=null, simIndex=0, manualAreaOverride=null, manualSpeedLimit=0.6, manualCurrentSpeed=0, autoTargetSpeed=0.4;
+let map=makeVirtualMap();
+let tool='area'; const logEl=()=>document.getElementById('log');
+function makeVirtualMap(){
+  return {
+    scale:0.06,
+    area:[{x:78,y:110},{x:710,y:82},{x:744,y:510},{x:132,y:545},{x:88,y:406}],
+    ngz:[{x:326,y:218},{x:454,y:208},{x:475,y:334},{x:316,y:355}],
+    pathway:[{x:106,y:574},{x:106,y:518},{x:132,y:518},{x:132,y:545}],
+    robot:{x:106,y:574,theta:-Math.PI/2},
+    dock:{x:106,y:574},
+    coverage:[],
+    trace:[],
+    landmarks:[
+      {type:'tree',x:205,y:190,label:'果树带'}, {type:'tree',x:585,y:145,label:'果树带'},
+      {type:'pond',x:606,y:425,label:'水池'}, {type:'shed',x:126,y:84,label:'工具棚'}
+    ]
+  }
+}
+function log(s){const t=new Date().toLocaleTimeString(); logEl().innerHTML=`[${t}] ${s}<br>`+logEl().innerHTML;}
+function showPage(name,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');document.querySelectorAll('.navItem').forEach(n=>n.classList.remove('active'));el.classList.add('active'); if(name==='map') setTimeout(drawMap,50); if(name==='settings') syncSettingsInputs();}
+function setConn(on){connected=on;document.getElementById('connDot').classList.toggle('on',on);document.getElementById('connText').innerText=on?'已连接':'未连接';updateSettingsPreview()}
+function connectRobot(){const url=document.getElementById('robotUrl').value.trim();try{socket=new WebSocket(url);socket.onopen=()=>{setConn(true);log('机器人连接成功 '+url);send({type:'hello',app:'AgriPilot',version:'0.2'});};socket.onmessage=e=>handleMsg(e.data);socket.onerror=()=>{log('WebSocket 连接失败，已进入仿真模式');setConn(true)};socket.onclose=()=>{setConn(false);log('连接已断开')};}catch(e){setConn(true);log('浏览器限制或地址不可用，已进入仿真模式')}}
+function disconnectRobot(){if(socket)socket.close();setConn(false);log('手动断开连接')}
+function send(obj){if(socket&&socket.readyState===1)socket.send(JSON.stringify(obj)); else console.log('SIM_SEND',obj)}
+function handleMsg(data){
+  try{
+    const m=JSON.parse(data);
+    if(m.battery!==undefined)document.getElementById('bat').innerText=Math.round(m.battery)+'%';
+    if(m.speed!==undefined)setSpeedDisplay(Number(m.speed));
+    if(m.rtk)document.getElementById('gps').innerText=m.rtk;
+    if(m.state){document.getElementById('modeBadge').innerText=m.state;}
+    if(m.pose){
+      // 支持两种坐标：screen=true 表示直接使用画布像素；否则默认按米制坐标换算到虚拟地图。
+      const x=m.pose.screen?m.pose.x:map.dock.x + Number(m.pose.x||0)/map.scale;
+      const y=m.pose.screen?m.pose.y:map.dock.y - Number(m.pose.y||0)/map.scale;
+      updateRobotPose(x,y,Number(m.pose.yaw||0),'real');
+    }
+    log('收到机器人数据 '+data)
+  }catch(e){log('收到数据 '+data)}
+}
+function setModule(name,el){activeModule=name;document.querySelectorAll('.module').forEach(m=>{m.classList.remove('active');const s=m.querySelector('span');if(s)s.innerText='切换';});el.classList.add('active');const current=el.querySelector('span');if(current)current.innerText='已装载';send({type:'module_select',module:name});log('切换模块：'+name+'，状态：已装载')}
+function startTask(){
+  if(map.coverage.length<2) generatePlan();
+  mode='自动作业';document.getElementById('modeBadge').innerText=mode;
+  autoTargetSpeed=Math.max(0,Math.min(2,autoTargetSpeed||0.4));
+  setSpeedDisplay(autoTargetSpeed,true);
+  send({type:'task_start',module:activeModule,map,speed:autoTargetSpeed});
+  startSimMotion();log('自动作业任务已启动，地图页可查看机器人实时轨迹，速度可实时调节')
+}
+function pauseTask(){
+  mode=mode==='暂停'?'自动作业':'暂停';document.getElementById('modeBadge').innerText=mode;send({type:'task_pause',pause:mode==='暂停'});
+  if(mode==='暂停') stopSimMotion(); else startSimMotion();
+  log(mode==='暂停'?'任务暂停':'任务继续')
+}
+function emergencyStop(){mode='急停';stopSimMotion();document.getElementById('modeBadge').innerText=mode;document.getElementById('dangerBar').style.display='block';send({type:'emergency_stop'});log('急停指令已发送')}
+function clearEmergency(){mode='待机';document.getElementById('modeBadge').innerText=mode;document.getElementById('dangerBar').style.display='none';send({type:'emergency_reset'});log('急停复位')}
+function cmd(k,v){send({type:'manual_cmd',[k]:v});log('手动指令 '+k+'='+v)}
+
+document.querySelectorAll('.tool').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tool').forEach(x=>x.classList.remove('active'));b.classList.add('active');tool=b.dataset.tool});
+const canvas=document.getElementById('mapCanvas'),ctx=canvas.getContext('2d');
+function pointInCanvas(e){const r=canvas.getBoundingClientRect();return {x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height}}
+canvas.addEventListener('pointerdown',e=>{const p=pointInCanvas(e); if(tool==='robot'){map.robot={x:p.x,y:p.y,theta:map.robot.theta||0};addTracePoint(true)} else {map[tool].push(p); if(tool==='area'||tool==='ngz')map.coverage=[];} drawMap(); calcArea();});
+function undoPoint(){if(tool==='robot')return;map[tool].pop();drawMap();calcArea()}
+function loadVirtualMap(){stopSimMotion();map=makeVirtualMap();simIndex=0;generatePlan(false);drawMap();calcArea();document.getElementById('mapStatus').innerText='虚拟地图';log('已载入虚拟农场地图：含工作区、禁区、通道、充电点和示范地物')}
+function clearTrail(){map.trace=[];simIndex=0;document.getElementById('trailLen').innerText='0m';document.getElementById('taskPct').innerText='0%';drawMap();log('实时轨迹已清空')}
+function drawLabel(text,x,y){ctx.save();ctx.font='20px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';ctx.fillStyle='rgba(232,241,255,.92)';ctx.strokeStyle='rgba(5,10,18,.8)';ctx.lineWidth=5;ctx.strokeText(text,x,y);ctx.fillText(text,x,y);ctx.restore();}
+function drawPoly(arr,stroke,fill,close=true){if(!arr.length)return;ctx.beginPath();ctx.moveTo(arr[0].x,arr[0].y);for(const p of arr.slice(1))ctx.lineTo(p.x,p.y);if(close&&arr.length>2)ctx.closePath();ctx.strokeStyle=stroke;ctx.lineWidth=4;ctx.stroke();ctx.fillStyle=fill; if(close&&arr.length>2)ctx.fill(); for(const p of arr){ctx.beginPath();ctx.arc(p.x,p.y,7,0,Math.PI*2);ctx.fillStyle=stroke;ctx.fill();}}
+function drawRoute(points, color, width, dash=[]){if(!points||points.length<2)return;ctx.save();ctx.strokeStyle=color;ctx.lineWidth=width;ctx.setLineDash(dash);ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);for(const p of points.slice(1))ctx.lineTo(p.x,p.y);ctx.stroke();ctx.restore();}
+function drawMap(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const g=ctx.createLinearGradient(0,0,0,canvas.height);g.addColorStop(0,'#102719');g.addColorStop(1,'#07101c');ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
+  // 虚拟农场底图：田垄、网格、工具棚、水池、充电点。
+  ctx.save();ctx.strokeStyle='rgba(160,230,160,.08)';ctx.lineWidth=2;for(let y=124;y<520;y+=28){ctx.beginPath();ctx.moveTo(80,y);ctx.bezierCurveTo(260,y-10,520,y+10,730,y-6);ctx.stroke()}ctx.restore();
+  ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;for(let x=0;x<canvas.width;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke()}for(let y=0;y<canvas.height;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke()}
+  if(map.landmarks){for(const item of map.landmarks){
+    if(item.type==='pond'){ctx.fillStyle='rgba(56,189,248,.18)';ctx.strokeStyle='rgba(56,189,248,.55)';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(item.x,item.y,72,38,-0.25,0,Math.PI*2);ctx.fill();ctx.stroke();drawLabel(item.label,item.x-28,item.y+5)}
+    if(item.type==='tree'){ctx.fillStyle='rgba(34,197,94,.28)';ctx.strokeStyle='rgba(74,222,128,.45)';ctx.lineWidth=2;for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(item.x+i*24,item.y+(i%2)*16,16,0,Math.PI*2);ctx.fill();ctx.stroke()}drawLabel(item.label,item.x-20,item.y-20)}
+    if(item.type==='shed'){ctx.fillStyle='rgba(245,158,11,.18)';ctx.strokeStyle='rgba(245,158,11,.45)';ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(item.x-45,item.y-28,90,56,10);ctx.fill();ctx.stroke();drawLabel(item.label,item.x-30,item.y+5)}
+  }}
+  drawPoly(map.area,'#4ade80','rgba(74,222,128,.12)');
+  drawPoly(map.ngz,'#ef4444','rgba(239,68,68,.20)');
+  drawPoly(map.pathway,'#38bdf8','rgba(56,189,248,.12)',false);
+  drawRoute(map.coverage,'rgba(250,204,21,.85)',3,[12,8]);
+  drawRoute(map.trace,'rgba(56,189,248,.95)',5,[]);
+  if(map.dock){ctx.save();ctx.translate(map.dock.x,map.dock.y);ctx.fillStyle='rgba(56,189,248,.16)';ctx.strokeStyle='rgba(56,189,248,.7)';ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(-28,-18,56,36,8);ctx.fill();ctx.stroke();ctx.fillStyle='#bae6fd';ctx.font='18px sans-serif';ctx.textAlign='center';ctx.fillText('充电',0,6);ctx.restore();}
+  drawLabel('工作区',96,138);drawLabel('禁区',350,290);drawLabel('实时轨迹',520,52);
+  drawRobot();updateMapStats();
+}
+function drawRobot(){
+  const r=map.robot;ctx.save();ctx.translate(r.x,r.y);ctx.rotate(r.theta||0);
+  ctx.shadowColor='rgba(56,189,248,.65)';ctx.shadowBlur=18;
+  ctx.fillStyle='#e8f1ff';ctx.beginPath();ctx.roundRect(-18,-26,36,52,12);ctx.fill();
+  ctx.shadowBlur=0;ctx.fillStyle='#07111f';ctx.fillRect(-12,-16,24,8);
+  ctx.fillStyle='#4ade80';ctx.beginPath();ctx.moveTo(0,-34);ctx.lineTo(-10,-20);ctx.lineTo(10,-20);ctx.closePath();ctx.fill();
+  ctx.strokeStyle='rgba(15,23,42,.75)';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-24,-20);ctx.lineTo(-24,22);ctx.moveTo(24,-20);ctx.lineTo(24,22);ctx.stroke();ctx.restore();
+}
+function polygonArea(a){let s=0;if(a.length<3)return 0;for(let i=0;i<a.length;i++){let j=(i+1)%a.length;s+=a[i].x*a[j].y-a[j].x*a[i].y}return Math.abs(s/2)}
+function calcArea(){let sqm=manualAreaOverride!==null?manualAreaOverride:polygonArea(map.area)*map.scale*map.scale;document.getElementById('area').innerText=Math.round(sqm)+'㎡';updateSettingsPreview()}
+function setSpeedDisplay(value, syncInput=true){
+  manualCurrentSpeed=Math.max(0,Math.min(2,Number(value)||0));
+  const text=manualCurrentSpeed.toFixed(1);
+  document.getElementById('spd').innerText=text;
+  const badge=document.getElementById('manualSpeedBadge');
+  if(badge)badge.innerText='实时速度 '+text+'m/s';
+  const input=document.getElementById('setSpeed');
+  if(syncInput&&input)input.value=text;
+  updateSettingsPreview();
+}
+function syncSettingsInputs(){const bat=parseInt(document.getElementById('bat').innerText)||0;const spd=parseFloat(document.getElementById('spd').innerText)||0;const area=parseInt(document.getElementById('area').innerText)||0;const b=document.getElementById('setBattery'),s=document.getElementById('setSpeed'),a=document.getElementById('setArea');if(b)b.value=bat;if(s)s.value=spd.toFixed(1);if(a)a.value=area;updateSettingsPreview()}
+function updateSettingsPreview(){const pb=document.getElementById('setPreviewBattery'),ps=document.getElementById('setPreviewSpeed'),pa=document.getElementById('setPreviewArea'),pc=document.getElementById('setPreviewConn');if(pb)pb.innerText=document.getElementById('bat').innerText;if(ps)ps.innerText=document.getElementById('spd').innerText;if(pa)pa.innerText=document.getElementById('area').innerText;if(pc)pc.innerText=document.getElementById('connText').innerText}
+function applySettings(){let b=Math.max(0,Math.min(100,parseInt(document.getElementById('setBattery').value)||0));let s=Math.max(0,Math.min(2,parseFloat(document.getElementById('setSpeed').value)||0));let a=Math.max(0,parseInt(document.getElementById('setArea').value)||0);manualAreaOverride=a;document.getElementById('bat').innerText=b+'%';if(mode==='自动作业'){autoTargetSpeed=s;send({type:'auto_speed_adjust',speed:autoTargetSpeed});}else{manualSpeedLimit=Math.max(0.1,Math.min(1.5,s||0.1));}setSpeedDisplay(s,false);document.getElementById('area').innerText=a+'㎡';updateSettingsPreview();send({type:'telemetry_override',battery:b,speed:s,area:a});log('已手动修改显示参数：电量 '+b+'%，速度 '+s.toFixed(1)+'m/s，区域 '+a+'㎡'+(mode==='自动作业'?'，自动作业速度已同步':''))}
+function resetAreaFromMap(){manualAreaOverride=null;calcArea();syncSettingsInputs();log('区域显示已恢复为地图自动计算值')}
+function adjustManualSpeed(delta){
+  if(mode==='自动作业'){
+    const next=Math.max(0,Math.min(2,Number((autoTargetSpeed+delta).toFixed(1))));
+    autoTargetSpeed=next;
+    setSpeedDisplay(next,true);
+    send({type:'auto_speed_adjust',speed:next});
+    log('自动作业速度调整为 '+next.toFixed(1)+'m/s，首页速度已实时同步')
+    return;
+  }
+  const next=Math.max(0,Math.min(2,Number((manualCurrentSpeed+delta).toFixed(1))));
+  setSpeedDisplay(next,true);
+  manualSpeedLimit=Math.max(0.1,Math.min(1.5,next||0.1));
+  send({type:'manual_speed_adjust',speed:next,speed_limit:manualSpeedLimit});
+  log('手动驾驶实时速度调整为 '+next.toFixed(1)+'m/s，首页速度已同步')
+}
+function pointInside(pt, poly){if(!poly||poly.length<3)return false;let c=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){if(((poly[i].y>pt.y)!=(poly[j].y>pt.y))&&(pt.x<(poly[j].x-poly[i].x)*(pt.y-poly[i].y)/(poly[j].y-poly[i].y)+poly[i].x))c=!c}return c}
+function generatePlan(writeLog=true){if(map.area.length<3){log('请先绘制工作区');return}map.coverage=[];let xs=map.area.map(p=>p.x),ys=map.area.map(p=>p.y);let minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);let flip=false;for(let y=minY+28;y<maxY;y+=34){let line=[];for(let x=minX+18;x<maxX-18;x+=14){let p={x,y}; if(pointInside(p,map.area)&&!pointInside(p,map.ngz))line.push(p)}if(line.length){if(flip)line.reverse();map.coverage.push(...line);flip=!flip}}simIndex=0;document.getElementById('mapStatus').innerText='路径已生成';drawMap();if(writeLog)log('已生成弓字形覆盖路径，共 '+map.coverage.length+' 个轨迹点')}
+function sendMap(){send({type:'map_upload',map});log('地图、禁区、规划路径与实时轨迹结构已下发机器人')}
+function exportMap(){const blob=new Blob([JSON.stringify(map,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='agripilot_virtual_map.json';a.click();URL.revokeObjectURL(a.href);log('地图 JSON 已导出')}
+function addTracePoint(force=false){const last=map.trace[map.trace.length-1];if(force||!last||Math.hypot(map.robot.x-last.x,map.robot.y-last.y)>5){map.trace.push({x:map.robot.x,y:map.robot.y});if(map.trace.length>1500)map.trace.shift();}}
+function updateRobotPose(x,y,theta,source='sim'){const last={x:map.robot.x,y:map.robot.y};map.robot.x=x;map.robot.y=y;if(Number.isFinite(theta))map.robot.theta=theta;else map.robot.theta=Math.atan2(y-last.y,x-last.x)+Math.PI/2;addTracePoint();if(source==='real')document.getElementById('mapStatus').innerText='实机轨迹';drawMap();}
+function startSimMotion(){
+  if(map.coverage.length<2)return;stopSimMotion();document.getElementById('mapStatus').innerText='仿真运动中';addTracePoint(true);
+  simTimer=setInterval(()=>{
+    if(mode!=='自动作业'){stopSimMotion();return}
+    if(simIndex>=map.coverage.length){stopSimMotion();mode='作业完成';document.getElementById('modeBadge').innerText=mode;document.getElementById('mapStatus').innerText='作业完成';setSpeedDisplay(0);log('虚拟地图覆盖作业已完成');return}
+    const target=map.coverage[simIndex], dx=target.x-map.robot.x, dy=target.y-map.robot.y, dist=Math.hypot(dx,dy);
+    const activeSpeed=Math.max(0,Math.min(2,autoTargetSpeed));
+    setSpeedDisplay(activeSpeed,true);
+    if(activeSpeed<=0)return;
+    const step=Math.max(1.5,activeSpeed*20);
+    if(dist<=step){updateRobotPose(target.x,target.y,Math.atan2(dy,dx)+Math.PI/2);simIndex++;}
+    else {updateRobotPose(map.robot.x+dx/dist*step,map.robot.y+dy/dist*step,Math.atan2(dy,dx)+Math.PI/2);}
+  },90)
+}
+function stopSimMotion(){if(simTimer){clearInterval(simTimer);simTimer=null}if(mode!=='自动作业')setSpeedDisplay(0)}
+function updateMapStats(){
+  let meters=0;for(let i=1;i<map.trace.length;i++)meters+=Math.hypot(map.trace[i].x-map.trace[i-1].x,map.trace[i].y-map.trace[i-1].y)*map.scale;
+  document.getElementById('trailLen').innerText=Math.round(meters)+'m';
+  const pct=map.coverage.length?Math.min(100,Math.round(simIndex/map.coverage.length*100)):0;document.getElementById('taskPct').innerText=pct+'%';
+  document.getElementById('robotXY').innerText=(map.robot.x*map.scale).toFixed(1)+','+(map.robot.y*map.scale).toFixed(1);
+}
+
+const joy=document.getElementById('joy'),stick=document.getElementById('stick');let dragging=false;
+joy.addEventListener('pointerdown',e=>{dragging=true;joy.setPointerCapture(e.pointerId);moveJoy(e)});joy.addEventListener('pointermove',e=>{if(dragging)moveJoy(e)});joy.addEventListener('pointerup',e=>{dragging=false;stick.style.left='50%';stick.style.top='50%';send({type:'manual_drive',linear:0,angular:0});setSpeedDisplay(0)});
+function moveJoy(e){const r=joy.getBoundingClientRect();let dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);const max=70,d=Math.hypot(dx,dy);if(d>max){dx=dx/d*max;dy=dy/d*max}stick.style.left=`calc(50% + ${dx}px)`;stick.style.top=`calc(50% + ${dy}px)`;let linear=Number((-dy/max*manualSpeedLimit).toFixed(2)),angular=Number((dx/max*1.2).toFixed(2));send({type:'manual_drive',linear,angular});setSpeedDisplay(Math.abs(linear))}
+setInterval(()=>{let b=parseInt(document.getElementById('bat').innerText)||86;if(mode==='自动作业'&&b>10){document.getElementById('bat').innerText=(b-1)+'%';updateSettingsPreview()}},9000);
+generatePlan(false);calcArea();setSpeedDisplay(0);drawMap();syncSettingsInputs();log('App 原型启动完成：默认显示已连接，已载入虚拟地图，可开始自动作业查看实时轨迹');
+</script>
+</body>
+</html>

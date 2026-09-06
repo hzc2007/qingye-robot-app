@@ -25,6 +25,10 @@
     canvas{width:100%;height:318px;background:#06101c;border:1px solid rgba(255,255,255,.08);border-radius:22px;touch-action:none;display:block}.mapTools{display:flex;gap:7px;overflow-x:auto;padding:8px 0 2px}.tool{white-space:nowrap;font-size:12px;padding:9px 11px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:var(--muted);cursor:pointer}.tool.active{background:rgba(56,189,248,.2);color:#bae6fd;border-color:rgba(56,189,248,.35)}
     .bottomNav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(430px,100%);display:grid;grid-template-columns:repeat(5,1fr);background:rgba(6,14,26,.94);backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.08);padding:8px 8px env(safe-area-inset-bottom)}.navItem{border:0;background:transparent;color:var(--muted);font-size:11px;padding:7px 0;border-radius:14px}.navItem b{display:block;font-size:18px;margin-bottom:3px}.navItem.active{color:#a7f3d0;background:rgba(74,222,128,.1)}
     .page{display:none}.page.active{display:block}.statusDot{width:9px;height:9px;border-radius:50%;background:var(--danger);box-shadow:0 0 16px var(--danger)}.statusDot.on{background:var(--ok);box-shadow:0 0 16px var(--ok)}.module{display:flex;align-items:center;justify-content:space-between;padding:12px;border-radius:16px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.06);margin:8px 0}.module.active{border-color:rgba(74,222,128,.45);background:rgba(74,222,128,.1)}.kbd{font-family:ui-monospace,Menlo,monospace;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:2px 6px;color:#dbeafe}.joy{height:220px;border-radius:28px;background:radial-gradient(circle at center,rgba(56,189,248,.22),rgba(255,255,255,.05) 38%,rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);position:relative;overflow:hidden}.stick{position:absolute;left:50%;top:50%;width:78px;height:78px;margin-left:-39px;margin-top:-39px;border-radius:50%;background:linear-gradient(135deg,#e8f1ff,#8da3c3);box-shadow:0 16px 30px rgba(0,0,0,.28);display:grid;place-items:center;color:#07111f;font-weight:900}.log{height:130px;overflow:auto;background:#050b14;border-radius:14px;border:1px solid rgba(255,255,255,.08);padding:10px;font-size:11px;color:#a7b6ca;line-height:1.55}.switch{display:flex;background:rgba(255,255,255,.06);border-radius:14px;padding:3px;gap:3px}.switch button{flex:1;border:0;border-radius:11px;padding:8px;color:var(--muted);background:transparent;font-weight:700}.switch button.active{background:rgba(74,222,128,.18);color:#bbf7d0}.badge{font-size:11px;color:#bae6fd;border:1px solid rgba(56,189,248,.25);background:rgba(56,189,248,.12);padding:4px 7px;border-radius:999px}.dangerBar{position:fixed;left:50%;transform:translateX(-50%);bottom:66px;width:min(398px,calc(100% - 28px));z-index:5;display:none}.dangerBar button{width:100%;box-shadow:0 14px 25px rgba(239,68,68,.24)}
+
+    .mapHint{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.mapHint>div{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:9px;text-align:center}.mapHint b{display:block;font-size:15px}.mapHint span{font-size:10px;color:var(--muted)}
+    .sensorCanvas{height:252px;background:radial-gradient(circle at center,#0b2230 0,#07111f 58%,#040911 100%)}
+    .sensorLegend{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 2px}.legendItem{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:5px}.legendDot{width:8px;height:8px;border-radius:50%;display:inline-block}.scanLive{display:inline-flex;align-items:center;gap:6px}.scanLive:before{content:'';width:7px;height:7px;border-radius:50%;background:#4ade80;box-shadow:0 0 12px #4ade80;animation:scanPulse 1.15s infinite}.scanPaused:before{background:#f59e0b;box-shadow:0 0 12px #f59e0b;animation:none}@keyframes scanPulse{0%,100%{opacity:.35;transform:scale(.8)}50%{opacity:1;transform:scale(1.25)}}
   </style>
 </head>
 <body>
@@ -74,13 +78,13 @@
 
     <section id="page-map" class="page">
       <div class="card">
-        <div class="row between"><div><p class="title">虚拟地形规划与实时轨迹</p><p class="sub">已内置一张虚拟农场地图：绿色为工作区，红色为禁区，黄色为规划路线，蓝色为机器人实时运动轨迹。</p></div><span class="badge" id="mapStatus">虚拟地图</span></div>
+        <div class="row between"><div><p class="title">作业地图</p><p class="sub">采用更简洁的地图展示风格：白色为作业区域边界，黄色为规划路线与通道，蓝色为机器人实时运动轨迹，并标出充电基站位置。</p></div><span class="badge" id="mapStatus">简洁地图</span></div>
         <div class="mapTools">
           <button class="tool active" data-tool="area">工作区</button><button class="tool" data-tool="ngz">禁区</button><button class="tool" data-tool="pathway">通道</button><button class="tool" data-tool="robot">放置机器人</button>
         </div>
         <canvas id="mapCanvas" width="800" height="620"></canvas>
         <div class="mapHint">
-          <div><b id="trailLen">0m</b><span>实时轨迹</span></div><div><b id="taskPct">0%</b><span>任务进度</span></div><div><b id="robotXY">0,0</b><span>机器人坐标</span></div>
+          <div><b id="trailLen">0m</b><span>实时轨迹</span></div><div><b id="taskPct">0%</b><span>任务进度</span></div><div><b id="robotXY">0,0</b><span>基站坐标</span></div>
         </div>
         <div class="grid3" style="margin-top:10px"><button class="btn ghost" onclick="loadVirtualMap()">载入虚拟地图</button><button class="btn blue" onclick="generatePlan()">生成路径</button><button class="btn primary" onclick="sendMap()">下发地图</button></div>
         <div class="grid3" style="margin-top:8px"><button class="btn ghost" onclick="undoPoint()">撤销点</button><button class="btn ghost" onclick="clearTrail()">清空轨迹</button><button class="btn ghost" onclick="exportMap()">导出JSON</button></div>
@@ -139,26 +143,23 @@
 <script>
 let socket=null, connected=true, activeModule='mower', mode='待机';
 let simTimer=null, simIndex=0, manualAreaOverride=null, manualSpeedLimit=0.6, manualCurrentSpeed=0, autoTargetSpeed=0.4;
+let scanTimer=null, scanRunning=false, scanAngle=0, scanRangeMeters=8, detectedCloud=[], latestScanPoints=[], realLidarActive=false;
 let map=makeVirtualMap();
 let tool='area'; const logEl=()=>document.getElementById('log');
 function makeVirtualMap(){
   return {
     scale:0.06,
-    area:[{x:78,y:110},{x:710,y:82},{x:744,y:510},{x:132,y:545},{x:88,y:406}],
-    ngz:[{x:326,y:218},{x:454,y:208},{x:475,y:334},{x:316,y:355}],
-    pathway:[{x:106,y:574},{x:106,y:518},{x:132,y:518},{x:132,y:545}],
-    robot:{x:106,y:574,theta:-Math.PI/2},
-    dock:{x:106,y:574},
+    area:[{x:160,y:135},{x:640,y:135},{x:640,y:370},{x:160,y:370}],
+    ngz:[],
+    pathway:[{x:400,y:500},{x:400,y:430},{x:400,y:370}],
+    robot:{x:400,y:500,theta:-Math.PI/2},
+    dock:{x:400,y:540},
     coverage:[],
-    trace:[],
-    landmarks:[
-      {type:'tree',x:205,y:190,label:'果树带'}, {type:'tree',x:585,y:145,label:'果树带'},
-      {type:'pond',x:606,y:425,label:'水池'}, {type:'shed',x:126,y:84,label:'工具棚'}
-    ]
+    trace:[]
   }
 }
 function log(s){const t=new Date().toLocaleTimeString(); logEl().innerHTML=`[${t}] ${s}<br>`+logEl().innerHTML;}
-function showPage(name,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');document.querySelectorAll('.navItem').forEach(n=>n.classList.remove('active'));el.classList.add('active'); if(name==='map') setTimeout(drawMap,50); if(name==='settings') syncSettingsInputs();}
+function showPage(name,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');document.querySelectorAll('.navItem').forEach(n=>n.classList.remove('active'));el.classList.add('active'); if(name==='map') setTimeout(()=>{drawMap()},50); if(name==='settings') syncSettingsInputs();}
 function setConn(on){connected=on;document.getElementById('connDot').classList.toggle('on',on);document.getElementById('connText').innerText=on?'已连接':'未连接';updateSettingsPreview()}
 function connectRobot(){const url=document.getElementById('robotUrl').value.trim();try{socket=new WebSocket(url);socket.onopen=()=>{setConn(true);log('机器人连接成功 '+url);send({type:'hello',app:'AgriPilot',version:'0.2'});};socket.onmessage=e=>handleMsg(e.data);socket.onerror=()=>{log('WebSocket 连接失败，已进入仿真模式');setConn(true)};socket.onclose=()=>{setConn(false);log('连接已断开')};}catch(e){setConn(true);log('浏览器限制或地址不可用，已进入仿真模式')}}
 function disconnectRobot(){if(socket)socket.close();setConn(false);log('手动断开连接')}
@@ -202,39 +203,65 @@ const canvas=document.getElementById('mapCanvas'),ctx=canvas.getContext('2d');
 function pointInCanvas(e){const r=canvas.getBoundingClientRect();return {x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height}}
 canvas.addEventListener('pointerdown',e=>{const p=pointInCanvas(e); if(tool==='robot'){map.robot={x:p.x,y:p.y,theta:map.robot.theta||0};addTracePoint(true)} else {map[tool].push(p); if(tool==='area'||tool==='ngz')map.coverage=[];} drawMap(); calcArea();});
 function undoPoint(){if(tool==='robot')return;map[tool].pop();drawMap();calcArea()}
-function loadVirtualMap(){stopSimMotion();map=makeVirtualMap();simIndex=0;generatePlan(false);drawMap();calcArea();document.getElementById('mapStatus').innerText='虚拟地图';log('已载入虚拟农场地图：含工作区、禁区、通道、充电点和示范地物')}
+function loadVirtualMap(){stopSimMotion();map=makeVirtualMap();simIndex=0;generatePlan(false);drawMap();calcArea();document.getElementById('mapStatus').innerText='简洁地图';log('已载入简洁虚拟地图：包含作业区、通道与充电基站')}
 function clearTrail(){map.trace=[];simIndex=0;document.getElementById('trailLen').innerText='0m';document.getElementById('taskPct').innerText='0%';drawMap();log('实时轨迹已清空')}
 function drawLabel(text,x,y){ctx.save();ctx.font='20px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';ctx.fillStyle='rgba(232,241,255,.92)';ctx.strokeStyle='rgba(5,10,18,.8)';ctx.lineWidth=5;ctx.strokeText(text,x,y);ctx.fillText(text,x,y);ctx.restore();}
 function drawPoly(arr,stroke,fill,close=true){if(!arr.length)return;ctx.beginPath();ctx.moveTo(arr[0].x,arr[0].y);for(const p of arr.slice(1))ctx.lineTo(p.x,p.y);if(close&&arr.length>2)ctx.closePath();ctx.strokeStyle=stroke;ctx.lineWidth=4;ctx.stroke();ctx.fillStyle=fill; if(close&&arr.length>2)ctx.fill(); for(const p of arr){ctx.beginPath();ctx.arc(p.x,p.y,7,0,Math.PI*2);ctx.fillStyle=stroke;ctx.fill();}}
 function drawRoute(points, color, width, dash=[]){if(!points||points.length<2)return;ctx.save();ctx.strokeStyle=color;ctx.lineWidth=width;ctx.setLineDash(dash);ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);for(const p of points.slice(1))ctx.lineTo(p.x,p.y);ctx.stroke();ctx.restore();}
 function drawMap(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  const g=ctx.createLinearGradient(0,0,0,canvas.height);g.addColorStop(0,'#102719');g.addColorStop(1,'#07101c');ctx.fillStyle=g;ctx.fillRect(0,0,canvas.width,canvas.height);
-  // 虚拟农场底图：田垄、网格、工具棚、水池、充电点。
-  ctx.save();ctx.strokeStyle='rgba(160,230,160,.08)';ctx.lineWidth=2;for(let y=124;y<520;y+=28){ctx.beginPath();ctx.moveTo(80,y);ctx.bezierCurveTo(260,y-10,520,y+10,730,y-6);ctx.stroke()}ctx.restore();
-  ctx.strokeStyle='rgba(255,255,255,.06)';ctx.lineWidth=1;for(let x=0;x<canvas.width;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke()}for(let y=0;y<canvas.height;y+=40){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke()}
-  if(map.landmarks){for(const item of map.landmarks){
-    if(item.type==='pond'){ctx.fillStyle='rgba(56,189,248,.18)';ctx.strokeStyle='rgba(56,189,248,.55)';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(item.x,item.y,72,38,-0.25,0,Math.PI*2);ctx.fill();ctx.stroke();drawLabel(item.label,item.x-28,item.y+5)}
-    if(item.type==='tree'){ctx.fillStyle='rgba(34,197,94,.28)';ctx.strokeStyle='rgba(74,222,128,.45)';ctx.lineWidth=2;for(let i=0;i<5;i++){ctx.beginPath();ctx.arc(item.x+i*24,item.y+(i%2)*16,16,0,Math.PI*2);ctx.fill();ctx.stroke()}drawLabel(item.label,item.x-20,item.y-20)}
-    if(item.type==='shed'){ctx.fillStyle='rgba(245,158,11,.18)';ctx.strokeStyle='rgba(245,158,11,.45)';ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(item.x-45,item.y-28,90,56,10);ctx.fill();ctx.stroke();drawLabel(item.label,item.x-30,item.y+5)}
-  }}
-  drawPoly(map.area,'#4ade80','rgba(74,222,128,.12)');
-  drawPoly(map.ngz,'#ef4444','rgba(239,68,68,.20)');
-  drawPoly(map.pathway,'#38bdf8','rgba(56,189,248,.12)',false);
-  drawRoute(map.coverage,'rgba(250,204,21,.85)',3,[12,8]);
-  drawRoute(map.trace,'rgba(56,189,248,.95)',5,[]);
-  if(map.dock){ctx.save();ctx.translate(map.dock.x,map.dock.y);ctx.fillStyle='rgba(56,189,248,.16)';ctx.strokeStyle='rgba(56,189,248,.7)';ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(-28,-18,56,36,8);ctx.fill();ctx.stroke();ctx.fillStyle='#bae6fd';ctx.font='18px sans-serif';ctx.textAlign='center';ctx.fillText('充电',0,6);ctx.restore();}
-  drawLabel('工作区',96,138);drawLabel('禁区',350,290);drawLabel('实时轨迹',520,52);
+  const bg=ctx.createLinearGradient(0,0,0,canvas.height);bg.addColorStop(0,'#171b25');bg.addColorStop(1,'#0a0f17');ctx.fillStyle=bg;ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.save();
+  ctx.strokeStyle='rgba(255,255,255,.05)';ctx.lineWidth=1;
+  for(let x=0;x<canvas.width;x+=28){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke()}
+  for(let y=0;y<canvas.height;y+=28){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke()}
+  ctx.restore();
+
+  if(map.area.length){
+    ctx.save();ctx.strokeStyle='rgba(255,255,255,.82)';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(map.area[0].x,map.area[0].y);for(const p of map.area.slice(1))ctx.lineTo(p.x,p.y);ctx.closePath();ctx.stroke();ctx.restore();
+  }
+  if(map.ngz.length){
+    ctx.save();ctx.strokeStyle='rgba(239,68,68,.9)';ctx.lineWidth=3;ctx.setLineDash([10,8]);ctx.beginPath();ctx.moveTo(map.ngz[0].x,map.ngz[0].y);for(const p of map.ngz.slice(1))ctx.lineTo(p.x,p.y);if(map.ngz.length>2)ctx.closePath();ctx.stroke();ctx.restore();
+  }
+
+  drawRoute(map.pathway,'rgba(250,204,21,.95)',7,[]);
+  drawRoute(map.coverage,'rgba(255,255,255,.5)',3,[]);
+  drawRoute(map.trace,'rgba(96,165,250,.98)',5,[]);
+
+  if(map.dock){
+    ctx.save();ctx.translate(map.dock.x,map.dock.y);
+    ctx.strokeStyle='rgba(250,204,21,.95)';ctx.fillStyle='rgba(250,204,21,.10)';ctx.lineWidth=3;
+    ctx.beginPath();ctx.roundRect(-48,-18,96,36,10);ctx.fill();ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,.96)';ctx.font='bold 17px sans-serif';ctx.textAlign='center';ctx.fillText('充电基站',0,6);
+    ctx.restore();
+  }
+
+  ctx.save();ctx.strokeStyle='rgba(250,204,21,.35)';ctx.setLineDash([6,6]);ctx.lineWidth=2;ctx.strokeRect(map.robot.x-32,map.robot.y-32,64,64);ctx.restore();
+  drawLabel('作业区域',map.area[0].x+12,map.area[0].y-18);
+  drawLabel('进场通道',map.pathway[0].x-58,map.pathway[0].y-12);
   drawRobot();updateMapStats();
 }
 function drawRobot(){
   const r=map.robot;ctx.save();ctx.translate(r.x,r.y);ctx.rotate(r.theta||0);
-  ctx.shadowColor='rgba(56,189,248,.65)';ctx.shadowBlur=18;
-  ctx.fillStyle='#e8f1ff';ctx.beginPath();ctx.roundRect(-18,-26,36,52,12);ctx.fill();
-  ctx.shadowBlur=0;ctx.fillStyle='#07111f';ctx.fillRect(-12,-16,24,8);
-  ctx.fillStyle='#4ade80';ctx.beginPath();ctx.moveTo(0,-34);ctx.lineTo(-10,-20);ctx.lineTo(10,-20);ctx.closePath();ctx.fill();
-  ctx.strokeStyle='rgba(15,23,42,.75)';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-24,-20);ctx.lineTo(-24,22);ctx.moveTo(24,-20);ctx.lineTo(24,22);ctx.stroke();ctx.restore();
+  ctx.strokeStyle='rgba(250,204,21,.95)';ctx.lineWidth=3;ctx.strokeRect(-16,-22,32,44);
+  ctx.fillStyle='rgba(74,222,128,.18)';ctx.fillRect(-10,-16,20,32);
+  ctx.fillStyle='#facc15';ctx.beginPath();ctx.arc(0,-9,4,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,-28);ctx.lineTo(0,-18);ctx.stroke();
+  ctx.restore();
 }
+
+function sampleSegment(a,b,step=12){const out=[];const d=Math.hypot(b.x-a.x,b.y-a.y);const n=Math.max(1,Math.ceil(d/step));for(let i=0;i<=n;i++){const t=i/n;out.push({x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t})}return out}
+function samplePolygonEdges(poly,step=12){let out=[];if(!poly||poly.length<2)return out;for(let i=0;i<poly.length;i++)out.push(...sampleSegment(poly[i],poly[(i+1)%poly.length],step));return out}
+function virtualObstaclePoints(){return []}
+function normalizeAngle(a){while(a>Math.PI)a-=Math.PI*2;while(a<-Math.PI)a+=Math.PI*2;return a}
+function simulateLidarSector(){}
+function ingestLidar(readings){}
+function drawMainScanOverlay(){}
+function drawScanMap(){}
+function startScanning(){}
+function pauseScanning(){}
+function clearScanMap(){}
+function startScanLoop(){}
 function polygonArea(a){let s=0;if(a.length<3)return 0;for(let i=0;i<a.length;i++){let j=(i+1)%a.length;s+=a[i].x*a[j].y-a[j].x*a[i].y}return Math.abs(s/2)}
 function calcArea(){let sqm=manualAreaOverride!==null?manualAreaOverride:polygonArea(map.area)*map.scale*map.scale;document.getElementById('area').innerText=Math.round(sqm)+'㎡';updateSettingsPreview()}
 function setSpeedDisplay(value, syncInput=true){
@@ -267,7 +294,7 @@ function adjustManualSpeed(delta){
   log('手动驾驶实时速度调整为 '+next.toFixed(1)+'m/s，首页速度已同步')
 }
 function pointInside(pt, poly){if(!poly||poly.length<3)return false;let c=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){if(((poly[i].y>pt.y)!=(poly[j].y>pt.y))&&(pt.x<(poly[j].x-poly[i].x)*(pt.y-poly[i].y)/(poly[j].y-poly[i].y)+poly[i].x))c=!c}return c}
-function generatePlan(writeLog=true){if(map.area.length<3){log('请先绘制工作区');return}map.coverage=[];let xs=map.area.map(p=>p.x),ys=map.area.map(p=>p.y);let minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);let flip=false;for(let y=minY+28;y<maxY;y+=34){let line=[];for(let x=minX+18;x<maxX-18;x+=14){let p={x,y}; if(pointInside(p,map.area)&&!pointInside(p,map.ngz))line.push(p)}if(line.length){if(flip)line.reverse();map.coverage.push(...line);flip=!flip}}simIndex=0;document.getElementById('mapStatus').innerText='路径已生成';drawMap();if(writeLog)log('已生成弓字形覆盖路径，共 '+map.coverage.length+' 个轨迹点')}
+function generatePlan(writeLog=true){if(map.area.length<3){log('请先绘制工作区');return}map.coverage=[];let xs=map.area.map(p=>p.x),ys=map.area.map(p=>p.y);let minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);let flip=false;for(let x=minX+28;x<maxX-24;x+=34){let line=[];for(let y=minY+18;y<maxY-18;y+=14){let p={x,y}; if(pointInside(p,map.area)&&!pointInside(p,map.ngz))line.push(p)}if(line.length){if(flip)line.reverse();map.coverage.push(...line);flip=!flip}}simIndex=0;document.getElementById('mapStatus').innerText='路径已生成';drawMap();if(writeLog)log('已生成简洁覆盖路径，共 '+map.coverage.length+' 个轨迹点')}
 function sendMap(){send({type:'map_upload',map});log('地图、禁区、规划路径与实时轨迹结构已下发机器人')}
 function exportMap(){const blob=new Blob([JSON.stringify(map,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='agripilot_virtual_map.json';a.click();URL.revokeObjectURL(a.href);log('地图 JSON 已导出')}
 function addTracePoint(force=false){const last=map.trace[map.trace.length-1];if(force||!last||Math.hypot(map.robot.x-last.x,map.robot.y-last.y)>5){map.trace.push({x:map.robot.x,y:map.robot.y});if(map.trace.length>1500)map.trace.shift();}}
@@ -291,14 +318,14 @@ function updateMapStats(){
   let meters=0;for(let i=1;i<map.trace.length;i++)meters+=Math.hypot(map.trace[i].x-map.trace[i-1].x,map.trace[i].y-map.trace[i-1].y)*map.scale;
   document.getElementById('trailLen').innerText=Math.round(meters)+'m';
   const pct=map.coverage.length?Math.min(100,Math.round(simIndex/map.coverage.length*100)):0;document.getElementById('taskPct').innerText=pct+'%';
-  document.getElementById('robotXY').innerText=(map.robot.x*map.scale).toFixed(1)+','+(map.robot.y*map.scale).toFixed(1);
+  document.getElementById('robotXY').innerText=(map.dock.x*map.scale).toFixed(1)+','+(map.dock.y*map.scale).toFixed(1);
 }
 
 const joy=document.getElementById('joy'),stick=document.getElementById('stick');let dragging=false;
 joy.addEventListener('pointerdown',e=>{dragging=true;joy.setPointerCapture(e.pointerId);moveJoy(e)});joy.addEventListener('pointermove',e=>{if(dragging)moveJoy(e)});joy.addEventListener('pointerup',e=>{dragging=false;stick.style.left='50%';stick.style.top='50%';send({type:'manual_drive',linear:0,angular:0});setSpeedDisplay(0)});
 function moveJoy(e){const r=joy.getBoundingClientRect();let dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);const max=70,d=Math.hypot(dx,dy);if(d>max){dx=dx/d*max;dy=dy/d*max}stick.style.left=`calc(50% + ${dx}px)`;stick.style.top=`calc(50% + ${dy}px)`;let linear=Number((-dy/max*manualSpeedLimit).toFixed(2)),angular=Number((dx/max*1.2).toFixed(2));send({type:'manual_drive',linear,angular});setSpeedDisplay(Math.abs(linear))}
 setInterval(()=>{let b=parseInt(document.getElementById('bat').innerText)||86;if(mode==='自动作业'&&b>10){document.getElementById('bat').innerText=(b-1)+'%';updateSettingsPreview()}},9000);
-generatePlan(false);calcArea();setSpeedDisplay(0);drawMap();syncSettingsInputs();log('App 原型启动完成：默认显示已连接，已载入虚拟地图，可开始自动作业查看实时轨迹');
+generatePlan(false);calcArea();setSpeedDisplay(0);drawMap();syncSettingsInputs();log('App 原型启动完成：默认显示已连接，已载入简洁地图，可开始自动作业查看实时轨迹与充电基站位置');
 </script>
 </body>
 </html>

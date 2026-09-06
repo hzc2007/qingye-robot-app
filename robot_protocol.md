@@ -80,3 +80,23 @@ AUTO_WORK 自动作业
 ```
 
 其中 `speed` 用于 App 界面实时显示，`speed_limit` 可作为 Jetson / STM32 侧的手动驾驶速度限制参考值。
+
+
+## LiDAR / 实时探测地图数据
+
+Jetson -> App 可发送：
+
+```json
+{
+  "pose": {"x": 1.2, "y": 2.8, "yaw": 0.35},
+  "lidar": [
+    {"angle": -1.57, "distance": 2.41},
+    {"angle": -1.55, "distance": 2.38},
+    {"angle": 0.15, "distance": 4.72}
+  ]
+}
+```
+
+- `angle`：以机器人正前方为 0 rad，逆时针为正。
+- `distance`：米。
+- App 默认显示 8 m 探测半径，并把连续帧累积成实时点云地图。
